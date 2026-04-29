@@ -1,0 +1,11 @@
+﻿using SharpLine.Api.Models.Dtos;
+
+namespace SharpLine.Api.Services.IService
+{
+    public interface IAuthService
+    {
+        Task<string> Register(RegistrationRequestDto registrationRequestDto);
+        Task<LoginResponseDto> Login(LoginRequestDto loginRequestDto);
+        Task<bool> AssignRole(string email, string roleName);
+    }
+}

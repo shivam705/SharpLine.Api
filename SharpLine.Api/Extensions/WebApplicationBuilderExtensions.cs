@@ -9,12 +9,17 @@ namespace SharpLine.Api.Extensions
         public static WebApplicationBuilder AddAppAuthetication(this WebApplicationBuilder builder)
         {
 
-            // JWT configuration
-            var settingsSection = builder.Configuration.GetSection("JwtOptions");
+            // JWT configuration (matches appsettings.json: ApiSettings:JwtOptions)
+            var settingsSection = builder.Configuration.GetSection("ApiSettings:JwtOptions");
 
             var secret = settingsSection.GetValue<string>("Secret");
             var issuer = settingsSection.GetValue<string>("Issuer");
             var audience = settingsSection.GetValue<string>("Audience");
+
+            if (string.IsNullOrWhiteSpace(secret))
+            {
+                throw new InvalidOperationException("JWT Secret is not configured. Please set 'ApiSettings:JwtOptions:Secret' in configuration.");
+            }
 
             var key = Encoding.ASCII.GetBytes(secret);
 

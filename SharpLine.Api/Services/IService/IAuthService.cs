@@ -5,7 +5,9 @@ namespace SharpLine.Api.Services.IService
     public interface IAuthService
     {
         Task<string> Register(RegistrationRequestDto registrationRequestDto);
-        Task<LoginResponseDto> Login(LoginRequestDto loginRequestDto);
+        Task<LoginResponseDto?> Login(LoginRequestDto loginRequestDto);
         Task<bool> AssignRole(string email, string roleName);
+        Task<IList<string>> GetUserRoles(string emailOrUserName);
+        Task<bool> RemoveRole(string email, string roleName);
     }
 }

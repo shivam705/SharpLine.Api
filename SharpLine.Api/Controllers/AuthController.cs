@@ -33,6 +33,7 @@ namespace SharpLine.Api.Controllers
             _authService = authService;
             _userManager = userManager;
             _config = config;
+            _response = new ResponseDto();
         }
 
 
@@ -47,6 +48,29 @@ namespace SharpLine.Api.Controllers
                 return BadRequest(_response);
             }
             //await _messageBus.PublishMessage(model.Email, _configuration.GetValue<string>("TopicAndQueueNames:RegisterUserQueue"));
+            return Ok(_response);
+        }
+
+        [HttpPost("remove-role")]
+        public async Task<IActionResult> RemoveRole([FromBody] AssignRoleRequestDto model)
+        {
+            if (model == null || string.IsNullOrWhiteSpace(model.Email) || string.IsNullOrWhiteSpace(model.Role))
+            {
+                _response.IsSuccess = false;
+                _response.Message = "Email and Role are required";
+                return BadRequest(_response);
+            }
+
+            var roleName = model.Role.ToUpper();
+            var removed = await _authService.RemoveRole(model.Email, roleName);
+            if (!removed)
+            {
+                _response.IsSuccess = false;
+                _response.Message = "Failed to remove role";
+                return BadRequest(_response);
+            }
+
+            _response.Message = "Role removed successfully";
             return Ok(_response);
         }
 
@@ -67,18 +91,52 @@ namespace SharpLine.Api.Controllers
 
 
 
-        [HttpPost("AssignRole")]
-        public async Task<IActionResult> AssignRole([FromBody] RegistrationRequestDto model)
+        [HttpPost("assign-role")]
+        public async Task<IActionResult> AssignRole([FromBody] AssignRoleRequestDto model)
         {
-            var assignRoleSuccessful = await _authService.AssignRole(model.Email, model.Role.ToUpper());
+            if (model == null || string.IsNullOrWhiteSpace(model.Email) || string.IsNullOrWhiteSpace(model.Role))
+            {
+                _response.IsSuccess = false;
+                _response.Message = "Email and Role are required";
+                return BadRequest(_response);
+            }
+
+            var roleName = model.Role.ToUpper();
+            var assignRoleSuccessful = await _authService.AssignRole(model.Email, roleName);
             if (!assignRoleSuccessful)
             {
                 _response.IsSuccess = false;
-                _response.Message = "Error encountered";
+                _response.Message = "Failed to assign role";
                 return BadRequest(_response);
             }
+            _response.Message = "Role assigned successfully";
             return Ok(_response);
 
+        }
+
+        [HttpGet("roles")]
+        public async Task<IActionResult> GetRoles([FromQuery] string? email)
+        {
+            IList<string> roles;
+            if (!string.IsNullOrWhiteSpace(email))
+            {
+                roles = await _authService.GetUserRoles(email);
+            }
+            else
+            {
+                // attempt to use authenticated user
+                var userName = User?.Identity?.Name;
+                if (string.IsNullOrWhiteSpace(userName))
+                {
+                    _response.IsSuccess = false;
+                    _response.Message = "No email provided and no authenticated user";
+                    return BadRequest(_response);
+                }
+                roles = await _authService.GetUserRoles(userName);
+            }
+
+            _response.Result = roles;
+            return Ok(_response);
         }
 
 

@@ -25,6 +25,22 @@ namespace SharpLine.Api.Data
                    .HasForeignKey(b => b.ShopId)
                    .OnDelete(DeleteBehavior.Restrict);
 
+            // Barber-User relationship (link to ApplicationUser)
+            builder.Entity<Barber>()
+                   .HasOne<ApplicationUser>(b => b.User)
+                   .WithMany()
+                   .HasForeignKey(b => b.UserId)
+                   .IsRequired(false)
+                   .OnDelete(DeleteBehavior.SetNull);
+
+            // Shop-Owner relationship
+            builder.Entity<Shop>()
+                   .HasOne<ApplicationUser>(s => s.Owner)
+                   .WithMany()
+                   .HasForeignKey(s => s.OwnerId)
+                   .IsRequired(false)
+                   .OnDelete(DeleteBehavior.SetNull);
+
             // Barber-Availability relationship
             builder.Entity<Availability>()
                    .HasOne(a => a.Barber)

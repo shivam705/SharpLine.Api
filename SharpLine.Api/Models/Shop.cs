@@ -16,6 +16,12 @@ namespace SharpLine.Api.Models
         public double Latitude { get; set; }
         public double Longitude { get; set; }
 
+        // Shop owner (ApplicationUser Id)
+        public string? OwnerId { get; set; }
+
+        [JsonIgnore]
+        public ApplicationUser? Owner { get; set; }
+
         [JsonIgnore] // Prevent cycle
         public ICollection<Barber> Barbers { get; set; } = new List<Barber>();
     }

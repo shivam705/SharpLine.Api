@@ -34,6 +34,7 @@ builder.Services.AddScoped<IShopService, ShopService>();
 builder.Services.AddScoped<IBarberService, BarberService>();
 builder.Services.AddScoped<IBookingService, BookingService>();
 
+builder.Services.AddAutoMapper(typeof(Program).Assembly);
 
 builder.Services.AddControllers(options =>
 {

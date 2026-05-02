@@ -18,6 +18,15 @@ namespace SharpLine.Api.Models
         [JsonIgnore]
         public Shop? Shop { get; set; }
 
+        // Link barber to an application user (barber's account)
+        public string? UserId { get; set; }
+
+        [JsonIgnore]
+        public ApplicationUser? User { get; set; }
+
+        // Indicates whether the barber is currently accepting bookings
+        public bool IsAvailable { get; set; } = true;
+
         [JsonIgnore]
         public ICollection<Availability> Availabilities { get; set; } = new List<Availability>();
 

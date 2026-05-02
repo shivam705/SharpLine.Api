@@ -10,31 +10,21 @@ namespace SharpLine.Api.Services
     {
         private readonly BookingRepository _bookingRepo;
         private readonly ApplicationDbContext _context;
+        private readonly IBarberService _barberService;
 
-        public BookingService(BookingRepository bookingRepo, ApplicationDbContext context)
+        public BookingService(BookingRepository bookingRepo, ApplicationDbContext context, IBarberService barberService)
         {
             _bookingRepo = bookingRepo;
             _context = context;
+            _barberService = barberService;
         }
 
         public async Task<Booking> CreateBookingAsync(Booking booking)
         {
-            var availability = await _context.Availabilities.FirstOrDefaultAsync(a =>
-                a.BarberId == booking.BarberId &&
-                booking.StartUtc >= a.StartUtc &&
-                booking.EndUtc <= a.EndUtc);
-
-            if (availability == null)
-                throw new Exception("Barber not available for selected time.");
-
-            bool overlap = await _context.Bookings.AnyAsync(b =>
-                b.BarberId == booking.BarberId &&
-                ((booking.StartUtc >= b.StartUtc && booking.StartUtc < b.EndUtc) ||
-                 (booking.EndUtc > b.StartUtc && booking.EndUtc <= b.EndUtc)) &&
-                b.Status == BookingStatus.Confirmed);
-
-            if (overlap)
-                throw new Exception("Time slot already booked.");
+            // Validate using BarberService
+            var isAvailable = await _barberService.IsBarberAvailableAsync(booking.BarberId, booking.StartUtc, booking.EndUtc);
+            if (!isAvailable)
+                throw new Services.Exceptions.BookingConflictException("Barber not available for selected time or time slot already booked.");
 
             await _bookingRepo.AddAsync(booking);
             await _bookingRepo.SaveChangesAsync();

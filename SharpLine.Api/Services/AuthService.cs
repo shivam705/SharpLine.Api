@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using SharpLine.Api.Data;
+using Microsoft.EntityFrameworkCore;
+using SharpLine.Api.Interfaces;
 using SharpLine.Api.Models;
 using SharpLine.Api.Models.Dtos;
 using SharpLine.Api.Services.IService;
@@ -180,6 +182,7 @@ namespace SharpLine.Api.Services
             var removeResult = await _userManager.RemoveFromRoleAsync(user, roleName);
             return removeResult.Succeeded;
         }
+
 
     }
 }

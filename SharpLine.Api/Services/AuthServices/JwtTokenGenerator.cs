@@ -1,12 +1,12 @@
 ﻿using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using SharpLine.Api.Models;
-using SharpLine.Api.Services.IService;
+using SharpLine.Api.Services.IService.IAuthService;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
-namespace SharpLine.Api.Services
+namespace SharpLine.Api.Services.AuthServices
 {
     public class JwtTokenGenerator : IJwtTokenGenerator
     {

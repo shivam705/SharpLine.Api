@@ -1,3 +1,5 @@
+using FirebaseAdmin;
+using Google.Apis.Auth.OAuth2;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using SharpLine.Api.Data;
@@ -6,11 +8,14 @@ using SharpLine.Api.Interfaces;
 using SharpLine.Api.Models;
 using SharpLine.Api.Repositories;
 using SharpLine.Api.Services;
-using SharpLine.Api.Services.IService;
+using SharpLine.Api.Services.AuthServices;
+using SharpLine.Api.Services.IService.IAuthService;
+using SharpLine.Api.Services.IService.IFirebaseService;
 using System;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
+var path = Path.Combine(builder.Environment.ContentRootPath, "firebase-key.json");
 
 // Add DbContext + Identity
 
@@ -33,6 +38,9 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IShopService, ShopService>();
 builder.Services.AddScoped<IBarberService, BarberService>();
 builder.Services.AddScoped<IBookingService, BookingService>();
+
+//firebase
+builder.Services.AddScoped<IFirebaseAuthService, FirebaseAuthService>();
 
 builder.Services.AddAutoMapper(typeof(Program).Assembly);
 
@@ -67,6 +75,14 @@ builder.Services.AddSwaggerGen(options =>
         }
     });
 });
+
+//firebase Configuration
+FirebaseApp.Create(new AppOptions()
+{
+    Credential = GoogleCredential.FromFile("firebase-key.json")
+});
+
+
 builder.AddAppAuthetication();
 
 builder.Services.AddAuthorization();

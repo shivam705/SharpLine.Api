@@ -1,6 +1,6 @@
 ﻿using SharpLine.Api.Models;
 
-namespace SharpLine.Api.Services.IService
+namespace SharpLine.Api.Services.IService.IAuthService
 {
     public interface IJwtTokenGenerator
     {

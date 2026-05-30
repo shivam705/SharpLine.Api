@@ -7,7 +7,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using SharpLine.Api.Models;
 using SharpLine.Api.Models.Dtos;
-using SharpLine.Api.Services.IService;
+using SharpLine.Api.Models.Dtos.FirebaseDTOs;
+using SharpLine.Api.Services.AuthServices;
+using SharpLine.Api.Services.IService.IAuthService;
+using SharpLine.Api.Services.IService.IFirebaseService;
 using System.Collections.Concurrent;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -24,15 +27,20 @@ namespace SharpLine.Api.Controllers
         private readonly IAuthService _authService;
         private readonly IConfiguration _config;
         protected ResponseDto _response;
+        private readonly IFirebaseAuthService _firebaseAuthService;
 
         // Simple in-memory token blacklist (for demonstration)
         private static ConcurrentDictionary<string, DateTime> _tokenBlacklist = new ConcurrentDictionary<string, DateTime>();
 
-        public AuthController(UserManager<ApplicationUser> userManager, IConfiguration config, IAuthService authService)
+        public AuthController(UserManager<ApplicationUser> userManager, 
+            IConfiguration config, 
+            IAuthService authService,
+            IFirebaseAuthService firebaseAuthService)
         {
             _authService = authService;
             _userManager = userManager;
             _config = config;
+            _firebaseAuthService = firebaseAuthService;
             _response = new ResponseDto();
         }
 
@@ -154,6 +162,26 @@ namespace SharpLine.Api.Controllers
 
 
             return Ok(new { message = "User logged out successfully. Token added to blacklist." });
+        }
+
+
+        [HttpPost("firebase-login")]
+        public async Task<IActionResult> FirebaseLogin([FromBody] FirebaseLoginRequest request)
+        {
+            if (string.IsNullOrEmpty(request.IdToken))
+                return BadRequest("Invalid token");
+
+            try
+            {
+                var response = await _firebaseAuthService
+                    .LoginWithFirebaseAsync(request.IdToken);
+
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return Unauthorized(ex.Message);
+            }
         }
 
 

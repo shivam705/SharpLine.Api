@@ -4,9 +4,9 @@ using Microsoft.EntityFrameworkCore;
 using SharpLine.Api.Interfaces;
 using SharpLine.Api.Models;
 using SharpLine.Api.Models.Dtos;
-using SharpLine.Api.Services.IService;
+using SharpLine.Api.Services.IService.IAuthService;
 
-namespace SharpLine.Api.Services
+namespace SharpLine.Api.Services.AuthServices
 {
     public class AuthService : IAuthService
     {
